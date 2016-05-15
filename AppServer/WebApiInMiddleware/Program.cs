@@ -12,6 +12,14 @@ namespace WebApiInMiddleware
     {
         static void Main(string[] args)
         {
+
+            // Set up and seed the database:
+            Console.WriteLine("Initializing and seeding database...");
+            Database.SetInitializer(new ApplicationDbInitializer());
+            var db = new ApplicationDbContext();
+            int count = db.Companies.Count();
+            Console.WriteLine("Database created and seeded with {0} company records...", count);
+
             string baseUri = "http://localhost:83";
 
             Console.WriteLine("Starting web Server...");

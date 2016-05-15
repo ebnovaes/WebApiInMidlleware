@@ -20,7 +20,6 @@ namespace AppClientWebApi
             HttpStatusCode result = companyClient.AddCompany(
                 new Company
                 {
-                    Id = nextId,
                     Name = string.Format("New Company #{0}", nextId)
                 });
             WriteStatusCodeResult(result);

@@ -7,6 +7,7 @@ using WebApiInMiddleware.Models;
 
 namespace WebApiInMiddleware.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CompaniesController : ApiController
     {
 

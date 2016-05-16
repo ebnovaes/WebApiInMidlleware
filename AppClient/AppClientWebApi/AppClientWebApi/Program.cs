@@ -20,7 +20,7 @@ namespace AppClientWebApi
         }
 
         static async Task Run()
-        {
+        {   
 
             string hostUriString = "http://localhost:83";
             ApiClientProvider provider = new ApiClientProvider(hostUriString);
@@ -30,7 +30,7 @@ namespace AppClientWebApi
             try
             {
                 tokenDictionary = await provider.GetTokenDictionary(
-                            "john@example.com", "password");
+                            "john@example.com", "assword");
                 accessToken = tokenDictionary["access_token"];
             }catch (AggregateException ex)
             {

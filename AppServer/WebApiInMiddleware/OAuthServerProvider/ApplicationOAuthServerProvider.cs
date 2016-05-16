@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Owin.Security.OAuth;
 using System.Security.Claims;
+using Microsoft.Owin.Security.OAuth;
 
 namespace WebApiInMiddleware.OAuthServerProvider
 {

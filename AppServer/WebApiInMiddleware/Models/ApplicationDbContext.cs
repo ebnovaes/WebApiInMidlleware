@@ -8,12 +8,14 @@ namespace WebApiInMiddleware.Models
         public ApplicationDbContext() : base("MyDatabase")
         {
         }
+
+        static ApplicationDbContext()
+        {
+            Database.SetInitializer(new ApplicationDbInitializer());
+        }
+
         public IDbSet<Company> Companies { get; set; }
 
-        internal Company FirstOrDefault(Func<object, bool> p)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 

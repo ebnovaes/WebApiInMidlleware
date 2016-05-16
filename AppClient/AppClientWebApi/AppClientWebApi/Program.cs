@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace AppClientWebApi
 {
@@ -9,43 +10,46 @@ namespace AppClientWebApi
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Read all the companies...");
-            CompanyClient companyClient = new CompanyClient("http://localhost:83");
-            IEnumerable<Company> companies = companyClient.GetCompanies();
-            WriteCompaniesList(companies);
 
-            int nextId = (from c in companies select c.Id).Max() + 1;
+            Run().Wait();
 
-            Console.WriteLine("Add a new company...");
-            HttpStatusCode result = companyClient.AddCompany(
-                new Company
-                {
-                    Name = string.Format("New Company #{0}", nextId)
-                });
-            WriteStatusCodeResult(result);
+            Console.WriteLine("");
+            Console.WriteLine("Done! Press the Enter key to Exit...");
+            Console.ReadLine();
+            return;
+        }
 
-            Console.WriteLine("Updated List after Add:");
-            companies = companyClient.GetCompanies();
-            WriteCompaniesList(companies);
+        static async Task Run()
+        {
 
-            Console.WriteLine("Update a company...");
-            Company updateMe = companyClient.GetCompany(nextId);
-            updateMe.Name = string.Format("Updated company {0}", updateMe.Id);
-            result = companyClient.UpdateCompany(updateMe);
-            WriteStatusCodeResult(result);
+            string hostUriString = "http://localhost:83";
+            ApiClientProvider provider = new ApiClientProvider(hostUriString);
+            string accessToken;
+            Dictionary<string, string> tokenDictionary;
 
-            Console.WriteLine("Updated List after Add:");
-            companies = companyClient.GetCompanies();
-            WriteCompaniesList(companies);
+            try
+            {
+                tokenDictionary = await provider.GetTokenDictionary(
+                            "john@example.com", "password");
+                accessToken = tokenDictionary["access_token"];
+            }catch (AggregateException ex)
+            {
+                Console.WriteLine(ex.InnerExceptions[0].Message);
+                Console.WriteLine("Press the Enter key to Exit...");
+                Console.ReadLine();
+                return;
+            }catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Press the Enter key to Exit...");
+                Console.ReadLine();
+                return;
+            }
 
-            Console.WriteLine("Delete a company...");
-            result = companyClient.DeleteCompany(nextId - 1);
-            WriteStatusCodeResult(result);
-
-            Console.WriteLine("Updated List after Add:");
-            companies = companyClient.GetCompanies();
-            WriteCompaniesList(companies);
-
+            foreach (KeyValuePair<string, string> kvp in tokenDictionary)
+            {
+                Console.WriteLine("{0}: {1}", kvp.Key, kvp.Value);
+            }
             Console.Read();
         }
 

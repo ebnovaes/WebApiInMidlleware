@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.Owin.Security.OAuth;
+using WebApiInMiddleware.Models;
 
 namespace WebApiInMiddleware.OAuthServerProvider
 {
@@ -13,7 +14,10 @@ namespace WebApiInMiddleware.OAuthServerProvider
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            if (context.Password != "password")
+            MyUserStore store = new MyUserStore(new ApplicationDbContext());
+            MyUser user = await store.FindByEmailAsync(context.UserName);
+
+            if (user == null || !store.PasswordIsValid(user, context.Password))
             {
                 context.SetError("Invalid grant", "The user name or password is incorrect.");
                 context.Rejected();
@@ -21,9 +25,12 @@ namespace WebApiInMiddleware.OAuthServerProvider
             }
 
             ClaimsIdentity identity = new ClaimsIdentity(context.Options.AuthenticationType);
-            identity.AddClaim(new Claim("user_name", context.UserName));
-           // identity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
 
+            foreach (MyUserClaim claim in user.Claims)
+            {
+                identity.AddClaim(new Claim(claim.ClaimType, claim.ClaimValue));
+            }
+            
             context.Validated(identity);
         }
     }

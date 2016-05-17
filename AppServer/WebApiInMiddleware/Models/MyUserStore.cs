@@ -3,7 +3,7 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using WebApiInMiddleware.Models;
 
-namespace WebApiInMiddleware
+namespace WebApiInMiddleware.Models
 {
     public class MyUserStore
     {
@@ -14,7 +14,7 @@ namespace WebApiInMiddleware
             _db = context;
         }
 
-        public async Task AddUserSync(MyUser user, string password)
+        public async Task AddUserSync(AuthModel user, string password)
         {
             if (await UserExists(user))
             {
@@ -26,31 +26,31 @@ namespace WebApiInMiddleware
             await _db.SaveChangesAsync();
         }
 
-        public async Task<MyUser> FindByEmailAsync(string email)
+        public async Task<AuthModel> FindByEmailAsync(string email)
         {
-            MyUser user = await
+            AuthModel user = await
                           _db.Users
                              .Include(c => c.Claims)
                              .FirstOrDefaultAsync(u => u.Email == email);
             return user;
         }
 
-        public async Task<MyUser> FindByIdAsync(string userId)
+        public async Task<AuthModel> FindByIdAsync(string userId)
         {
-            MyUser user = await
+            AuthModel user = await
                           _db.Users
                              .FirstOrDefaultAsync(u => u.Id == userId);
             return user;
         }
 
-        public async Task<bool> UserExists(MyUser user)
+        public async Task<bool> UserExists(AuthModel user)
         {
             return await _db.Users.AnyAsync(u => u.Id == user.Id || u.Email == user.Email);
         }
 
         public async Task AddClaimAsync(string userId, MyUserClaim claim)
         {
-            MyUser user = await FindByIdAsync(userId);
+            AuthModel user = await FindByIdAsync(userId);
             if (user == null)
             {
                 throw new Exception("User does not exist");
@@ -59,7 +59,7 @@ namespace WebApiInMiddleware
             await _db.SaveChangesAsync();
         }
 
-        public bool PasswordIsValid(MyUser user, string password)
+        public bool PasswordIsValid(AuthModel user, string password)
         {
             MyPasswordHasher hasher = new MyPasswordHasher();
             string hash = hasher.CreateHash(password);

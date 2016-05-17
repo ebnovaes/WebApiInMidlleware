@@ -15,7 +15,7 @@ namespace WebApiInMiddleware.OAuthServerProvider
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
             MyUserStore store = new MyUserStore(new ApplicationDbContext());
-            MyUser user = await store.FindByEmailAsync(context.UserName);
+            AuthModel user = await store.FindByEmailAsync(context.UserName);
 
             if (user == null || !store.PasswordIsValid(user, context.Password))
             {

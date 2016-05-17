@@ -3,6 +3,7 @@ using Microsoft.Owin.Security.OAuth;
 using Owin;
 using System;
 using System.Web.Http;
+using WebApiInMiddleware.Models;
 using WebApiInMiddleware.OAuthServerProvider;
 
 namespace WebApiInMiddleware
@@ -11,9 +12,20 @@ namespace WebApiInMiddleware
     {
         public void Configuration(IAppBuilder app)
         {
-            ConfigureOAuth(app);
-            HttpConfiguration webApiConfiguration = ConfigureWebApi();
-            app.UseWebApi(webApiConfiguration);
+            app.CreatePerOwinContext(ApplicationDbContext.Create);
+            app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
+
+            var oAuthOptions = new OAuthAuthorizationServerOptions
+            {
+                TokenEndpointPath = new PathString("/Token"),
+                Provider = new ApplicationOAuthServerProvider(),
+                AccessTokenExpireTimeSpan = TimeSpan.FromDays(14),
+                AllowInsecureHttp = true
+           
+            };
+
+            app.UseOAuthAuthorizationServer(oAuthOptions);
+            app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
         }
         
         private void ConfigureOAuth(IAppBuilder app)

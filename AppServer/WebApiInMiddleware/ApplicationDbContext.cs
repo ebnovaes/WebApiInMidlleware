@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System.Data.Entity;
 using System.Security.Claims;
 
 namespace WebApiInMiddleware.Models
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUserManager>
     {
         public ApplicationDbContext() : base("MyDatabase")
         {
@@ -14,55 +15,47 @@ namespace WebApiInMiddleware.Models
         {
             Database.SetInitializer(new ApplicationDbInitializer());
         }
+        
+        public static ApplicationDbContext Create()
+        {
+            return new ApplicationDbContext();
+        }
+
 
         public IDbSet<Company> Companies { get; set; }
-        public IDbSet<MyUser> Users { get; set; }
-        public IDbSet<MyUserClaim> Claims { get; set; }
 
     }
-
 
     public class ApplicationDbInitializer : DropCreateDatabaseAlways<ApplicationDbContext>
     {
         protected async override void Seed(ApplicationDbContext context)
         {
-            base.Seed(context);
             context.Companies.Add(new Company { Name = "Microsoft" });
             context.Companies.Add(new Company { Name = "Google" });
             context.Companies.Add(new Company { Name = "Apple" });
+            context.SaveChanges();
 
-            MyUser john = new MyUser { Email = "john@example.com" };
-            MyUser jimi = new MyUser { Email = "jimi@Example.com" };
+            ApplicationUserManager john = new ApplicationUserManager {
+                Email = "john@Example.com",
+                UserName = "john@Example.com"
+            };
+            ApplicationUserManager jimi = new ApplicationUserManager
+            {
+                Email = "jimi@Example.com",
+                UserName = "jimi@Example.com"
+            };
 
-            john.Claims.Add(new MyUserClaim
-            {
-                ClaimType = ClaimTypes.Name,
-                UserId = john.Id,
-                ClaimValue = john.Email
-            });
-            john.Claims.Add(new MyUserClaim
-            {
-                ClaimType = ClaimTypes.Role,
-                UserId = john.Id,
-                ClaimValue = "Admin"
-            });
+            UserManager<ApplicationUserManager> manager = new UserManager<ApplicationUserManager>(
+                new UserStore<ApplicationUserManager>(context));
 
-            jimi.Claims.Add(new MyUserClaim
-            {
-                ClaimType = ClaimTypes.Name,
-                UserId = jimi.Id,
-                ClaimValue = jimi.Email
-            });
-            john.Claims.Add(new MyUserClaim
-            {
-                ClaimType = ClaimTypes.Role,
-                UserId = jimi.Id,
-                ClaimValue = "User"
-            });
+            IdentityResult result1 = await manager.CreateAsync(john, "JohnsPassword");
+            IdentityResult result2 = await manager.CreateAsync(john, "JimisPassword");
 
-            var store = new MyUserStore(context);
-            await store.AddUserSync(john, "JohnsPassword");
-            await store.AddUserSync(jimi, "JimisPassword");
+            await manager.AddClaimAsync(john.Id, new Claim(ClaimTypes.Name, "john@example.com"));
+            await manager.AddClaimAsync(john.Id, new Claim(ClaimTypes.Role, "Admin"));
+
+            await manager.AddClaimAsync(john.Id, new Claim(ClaimTypes.Name, "jimi@example.com"));
+            await manager.AddClaimAsync(john.Id, new Claim(ClaimTypes.Role, "user"));
         }
     }
 }

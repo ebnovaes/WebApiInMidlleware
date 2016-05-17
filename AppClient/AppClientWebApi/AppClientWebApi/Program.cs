@@ -30,7 +30,7 @@ namespace AppClientWebApi
             try
             {
                 tokenDictionary = await provider.GetTokenDictionary(
-                            "john@example.com", "JohnsPassword");
+                            "jimi@example.com", "JimisPassword");
                 accessToken = tokenDictionary["access_token"];
 
                 foreach (KeyValuePair<string, string> kvp in tokenDictionary)

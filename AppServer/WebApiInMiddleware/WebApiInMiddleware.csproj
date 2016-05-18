@@ -116,7 +116,6 @@
     <Compile Include="ApplicationDbContext.cs" />
     <Compile Include="Models\Company.cs" />
     <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\MyUserStore.cs" />
     <Compile Include="OAuthServerProvider\ApplicationOAuthServerProvider.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

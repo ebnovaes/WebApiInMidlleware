@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 namespace WebApiInMiddleware.Models
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUserManager>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext() : base("MyDatabase")
         {
@@ -35,21 +35,21 @@ namespace WebApiInMiddleware.Models
             context.Companies.Add(new Company { Name = "Apple" });
             context.SaveChanges();
 
-            ApplicationUserManager john = new ApplicationUserManager {
+            ApplicationUser john = new ApplicationUser {
                 Email = "john@Example.com",
                 UserName = "john@Example.com"
             };
-            ApplicationUserManager jimi = new ApplicationUserManager
+            ApplicationUser jimi = new ApplicationUser
             {
                 Email = "jimi@Example.com",
                 UserName = "jimi@Example.com"
             };
 
-            UserManager<ApplicationUserManager> manager = new UserManager<ApplicationUserManager>(
-                new UserStore<ApplicationUserManager>(context));
+            ApplicationUserManager manager = new ApplicationUserManager(
+                new UserStore<ApplicationUser>(context));
 
             IdentityResult result1 = await manager.CreateAsync(john, "JohnsPassword");
-            IdentityResult result2 = await manager.CreateAsync(john, "JimisPassword");
+            IdentityResult result2 = await manager.CreateAsync(jimi, "JimisPassword");
 
             await manager.AddClaimAsync(john.Id, new Claim(ClaimTypes.Name, "john@example.com"));
             await manager.AddClaimAsync(john.Id, new Claim(ClaimTypes.Role, "Admin"));

@@ -4,14 +4,24 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 
 namespace WebApiInMiddleware.Models
-{ 
-    public class ApplicationUserManager : UserManager<ApplicationUserManager>
+{
+    public class ApplicationUser : IdentityUser
     {
-        public ApplicationUserManager(IUserStore<ApplicationUserManager> store) : base(store) { }
+        public ApplicationUser() { }
+
+        public ApplicationUser(string email) : base(email)
+        {
+            UserName = email;
+        }
+    }
+
+    public class ApplicationUserManager : UserManager<ApplicationUser>
+    {
+        public ApplicationUserManager(IUserStore<ApplicationUser> store) : base(store) { }
 
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)
         {
-            return new ApplicationUserManager(new UserStore<ApplicationUserManager>(context.Get<ApplicationDbContext>()));
+            return new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
         }
     }
 

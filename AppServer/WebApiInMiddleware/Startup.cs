@@ -26,6 +26,8 @@ namespace WebApiInMiddleware
 
             app.UseOAuthAuthorizationServer(oAuthOptions);
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
+            HttpConfiguration webApiConfiguration = ConfigureWebApi();
+            app.UseWebApi(webApiConfiguration);
         }
         
         private void ConfigureOAuth(IAppBuilder app)
